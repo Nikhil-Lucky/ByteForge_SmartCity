@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Picker</title>
+  <script src="https://unpkg.com/streamlit-component-lib/dist/index.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    let autoRequested = false;
+
+    function sendValue(value) {
+      Streamlit.setComponentValue(value);
+    }
+
+    function requestLocation() {
+      if (!navigator.geolocation) {
+        sendValue({status: "unsupported"});
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const payload = {
+            status: "granted",
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy
+          };
+          sendValue(payload);
+        },
+        (error) => {
+          sendValue({status: "denied", message: error.message});
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, () => {
+      Streamlit.setFrameHeight(0);
+      if (!autoRequested) {
+        autoRequested = true;
+        requestLocation();
+      }
+    });
+
+    Streamlit.setComponentReady();
+    Streamlit.setFrameHeight(0);
+  </script>
+</body>
+</html>

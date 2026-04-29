@@ -1,0 +1,34 @@
+[
+  {
+    "id": "CMP-1001",
+    "category": "Pothole",
+    "area": "Jayanagar",
+    "priority": "High",
+    "status": "In Progress",
+    "department": "BBMP Roads Department"
+  },
+  {
+    "id": "CMP-1002",
+    "category": "Garbage",
+    "area": "JP Nagar",
+    "priority": "Medium",
+    "status": "Registered",
+    "department": "BBMP Solid Waste Management"
+  },
+  {
+    "id": "CMP-1003",
+    "category": "Street Light",
+    "area": "Banashankari",
+    "priority": "Medium",
+    "status": "Pending",
+    "department": "BESCOM / BBMP"
+  },
+  {
+    "id": "CMP-1004",
+    "category": "Water Supply",
+    "area": "BTM Layout",
+    "priority": "High",
+    "status": "Assigned",
+    "department": "BWSSB"
+  }
+]

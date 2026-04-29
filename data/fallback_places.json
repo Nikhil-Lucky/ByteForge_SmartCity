@@ -1,0 +1,202 @@
+[
+  {
+    "name": "Ragigudda Sri Prasanna Anjaneya Temple",
+    "type": "temple",
+    "city": "Bengaluru",
+    "area": "Jayanagar",
+    "lat": 12.9166,
+    "lon": 77.592,
+    "status": "Open",
+    "notes": "Popular temple near Jayanagar and JP Nagar"
+  },
+  {
+    "name": "Banashankari Amma Temple",
+    "type": "temple",
+    "city": "Bengaluru",
+    "area": "Banashankari",
+    "lat": 12.9255,
+    "lon": 77.5468,
+    "status": "Open",
+    "notes": "Famous temple in South Bengaluru"
+  },
+  {
+    "name": "Jayanagar Police Station",
+    "type": "police_station",
+    "city": "Bengaluru",
+    "area": "Jayanagar",
+    "lat": 12.9293,
+    "lon": 77.5832,
+    "status": "Open 24/7",
+    "notes": "Police support for Jayanagar area"
+  },
+  {
+    "name": "Majestic Bus Station",
+    "type": "bus_station",
+    "city": "Bengaluru",
+    "area": "Majestic",
+    "lat": 12.9767,
+    "lon": 77.5713,
+    "status": "Operational",
+    "notes": "Major bus terminal in Bengaluru"
+  },
+  {
+    "name": "KR Market Metro Station",
+    "type": "metro_station",
+    "city": "Bengaluru",
+    "area": "KR Market",
+    "lat": 12.9608,
+    "lon": 77.5746,
+    "status": "Operational",
+    "notes": "Metro station near city market"
+  },
+  {
+    "name": "Mysore Palace",
+    "type": "tourist_place",
+    "city": "Mysuru",
+    "area": "Sayyaji Rao Road",
+    "lat": 12.3052,
+    "lon": 76.6552,
+    "status": "Open",
+    "notes": "Famous heritage palace in Mysuru"
+  },
+  {
+    "name": "Chamundi Hill Temple",
+    "type": "temple",
+    "city": "Mysuru",
+    "area": "Chamundi Hill",
+    "lat": 12.2729,
+    "lon": 76.6704,
+    "status": "Open",
+    "notes": "Popular temple and viewpoint in Mysuru"
+  },
+  {
+    "name": "Mysuru City Police Commissioner Office",
+    "type": "police_station",
+    "city": "Mysuru",
+    "area": "Nazarbad",
+    "lat": 12.3094,
+    "lon": 76.6611,
+    "status": "Open",
+    "notes": "Police support location in Mysuru"
+  },
+  {
+    "name": "Cubbon Park",
+    "type": "park",
+    "city": "Bengaluru",
+    "area": "Central Bengaluru",
+    "lat": 12.9763,
+    "lon": 77.5929,
+    "status": "Open",
+    "notes": "Large public park in central Bengaluru"
+  },
+  {
+    "name": "Lalbagh Botanical Garden",
+    "type": "park",
+    "city": "Bengaluru",
+    "area": "Lalbagh",
+    "lat": 12.9507,
+    "lon": 77.5848,
+    "status": "Open",
+    "notes": "Major botanical garden in Bengaluru"
+  },
+  {
+    "name": "Chennai Central Railway Station",
+    "type": "railway_station",
+    "city": "Chennai",
+    "area": "Central",
+    "lat": 13.0827,
+    "lon": 80.2755,
+    "status": "Operational",
+    "notes": "Major railway station in Chennai"
+  },
+  {
+    "name": "Kapaleeshwarar Temple",
+    "type": "temple",
+    "city": "Chennai",
+    "area": "Mylapore",
+    "lat": 13.0339,
+    "lon": 80.2687,
+    "status": "Open",
+    "notes": "Famous temple in Chennai"
+  },
+  {
+    "name": "Marina Beach",
+    "type": "tourist_place",
+    "city": "Chennai",
+    "area": "Marina",
+    "lat": 13.0500,
+    "lon": 80.2824,
+    "status": "Open",
+    "notes": "Popular beach in Chennai"
+  },
+  {
+    "name": "Charminar",
+    "type": "tourist_place",
+    "city": "Hyderabad",
+    "area": "Old City",
+    "lat": 17.3616,
+    "lon": 78.4747,
+    "status": "Open",
+    "notes": "Historic monument in Hyderabad"
+  },
+  {
+    "name": "Birla Mandir Hyderabad",
+    "type": "temple",
+    "city": "Hyderabad",
+    "area": "Naubat Pahad",
+    "lat": 17.4062,
+    "lon": 78.4691,
+    "status": "Open",
+    "notes": "Popular temple in Hyderabad"
+  },
+  {
+    "name": "Mumbai CSMT Railway Station",
+    "type": "railway_station",
+    "city": "Mumbai",
+    "area": "Fort",
+    "lat": 18.9402,
+    "lon": 72.8356,
+    "status": "Operational",
+    "notes": "Major railway station in Mumbai"
+  },
+  {
+    "name": "Gateway of India",
+    "type": "tourist_place",
+    "city": "Mumbai",
+    "area": "Colaba",
+    "lat": 18.9220,
+    "lon": 72.8347,
+    "status": "Open",
+    "notes": "Famous landmark in Mumbai"
+  },
+  {
+    "name": "India Gate",
+    "type": "tourist_place",
+    "city": "Delhi",
+    "area": "New Delhi",
+    "lat": 28.6129,
+    "lon": 77.2295,
+    "status": "Open",
+    "notes": "Famous landmark in Delhi"
+  },
+  {
+    "name": "AIIMS Delhi",
+    "type": "hospital",
+    "city": "Delhi",
+    "area": "Ansari Nagar",
+    "lat": 28.5672,
+    "lon": 77.2100,
+    "status": "Open 24/7",
+    "notes": "Major hospital in Delhi"
+  },
+  {
+    "name": "Kempegowda International Airport",
+    "type": "airport",
+    "city": "Bengaluru",
+    "area": "Devanahalli",
+    "lat": 13.1986,
+    "lon": 77.7066,
+    "status": "Operational",
+    "notes": "International airport serving Bengaluru"
+  }
+]

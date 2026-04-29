@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Apollo Hospital Jayanagar",
+    "area": "Jayanagar",
+    "lat": 12.9295,
+    "lon": 77.5933,
+    "emergency_beds": 8,
+    "icu_beds": 4,
+    "load_percent": 62
+  },
+  {
+    "name": "Sagar Hospital",
+    "area": "Jayanagar",
+    "lat": 12.9167,
+    "lon": 77.597,
+    "emergency_beds": 5,
+    "icu_beds": 2,
+    "load_percent": 74
+  },
+  {
+    "name": "Manipal Hospital",
+    "area": "Old Airport Road",
+    "lat": 12.9583,
+    "lon": 77.6486,
+    "emergency_beds": 10,
+    "icu_beds": 6,
+    "load_percent": 55
+  }
+]

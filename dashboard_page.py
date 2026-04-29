@@ -48,14 +48,6 @@ def _run_query(query, run_smartcity_agent):
         st.session_state.last_deck = deck
 
 
-def _detect_area(query):
-    query_lower = query.lower()
-    for area in AREA_COORDS:
-        if area.lower() in query_lower:
-            return area
-    return _get_query_location(query)["area"]
-
-
 def _nearest_area_name(lat, lon):
     candidates = {name: coords for name, coords in AREA_COORDS.items() if name != "Bengaluru"}
     return min(
@@ -65,7 +57,7 @@ def _nearest_area_name(lat, lon):
 
 
 def _capture_exact_location():
-    return
+    st.session_state.setdefault("exact_location_supported", False)
 
 
 def _fetch_current_location():
@@ -291,8 +283,18 @@ def _location_status_text(query):
     if source == "exact":
         accuracy = location.get("accuracy")
         return f"Using exact browser location{f' (accuracy ~{int(accuracy)} m)' if accuracy else ''}."
-    if _query_needs_exact_location(query):
-        return "Exact location permission not granted yet. Map is using an approximate city/IP location."
+    if source == "geocoded_query":
+        return f"Using geocoded query location: {location['label']}."
+    if source == "custom_query":
+        return f"Using an estimated custom location for {location['label']}."
+    if source == "approximate_ip":
+        if _query_needs_exact_location(query):
+            return "Using approximate IP-based location. Browser GPS is not enabled in this demo build."
+        return f"Using approximate detected location near {location['label']}."
+    if source == "fallback_city":
+        if _query_needs_exact_location(query):
+            return "Using the Bengaluru fallback location. Browser GPS is not enabled in this demo build."
+        return "Using the Bengaluru fallback location."
     return f"Using detected location: {location['label']}."
 
 

@@ -44,10 +44,14 @@ The repository has also been initialized with Git and pushed to GitHub.
 - IP-based approximate location fallback is implemented
 - Custom place-label geocoding fallback is implemented
 - Dashboard now shows location-source status for the active query
+- Exact browser GPS is intentionally not wired into the demo flow; status messaging now reflects fallback behavior honestly
 
 ### Repo hygiene
 - `.gitignore` added for `.env`, `venv/`, and cache files
 - Local repo initialized and pushed to GitHub
+- `README.md` now includes setup, env vars, feature summary, and demo queries
+- `requirements.txt` has been cleaned to match the packages actually imported by the app
+- Basic smoke tests now exist for dashboard helper behavior
 
 ## Recent improvements made
 
@@ -55,26 +59,25 @@ The repository has also been initialized with Git and pushed to GitHub.
 - Reused localized complaint data instead of duplicating fallback complaint logic
 - Added visible location-status messaging for query results
 - Restored use of agent-generated map decks instead of always replacing them with a generic local map
+- Replaced the empty README with real setup and usage documentation
+- Removed the misleading exact-location permission path from dashboard messaging
+- Added lightweight `unittest` coverage for pure dashboard helpers
 
 ## Known gaps / risks
 
-- `README.md` is still empty
-- `progress.md` was previously empty and is now being formalized
-- `requirements.txt` likely needs cleanup
-  Current content appears to have at least one malformed dependency entry: `openaipydeck`
-- Exact browser geolocation capture is still stubbed in `dashboard_page.py`
-- There is little or no automated test coverage yet
+- `progress.md` needs to be pushed after this latest refresh
+- Exact browser geolocation capture is still not integrated into the Streamlit flow
+- Test coverage is still very light and currently focused on helper-level behavior
 - Some UI strings in terminal output show encoding/misrendering, so text rendering should be checked in the actual Streamlit app
 - Live API behavior depends on `.env` keys being present
 
 ## Suggested next tasks
 
-1. Fill `README.md` with setup, env vars, run steps, and feature overview.
-2. Clean `requirements.txt` and verify installability in a fresh environment.
-3. Implement real browser location capture or remove the exact-location messaging path.
-4. Run the Streamlit app end-to-end and verify the dashboard flows visually.
-5. Add smoke tests for routing and helper functions.
-6. Prepare demo-ready screenshots and a concise presentation script.
+1. Run the Streamlit app end-to-end and visually verify all dashboard flows.
+2. Install dependencies in a fresh environment and confirm `requirements.txt` is sufficient.
+3. Expand tests beyond helper functions into routing and payload generation.
+4. Decide whether to integrate browser geolocation for a future version or remove the unused prototype component.
+5. Prepare demo-ready screenshots and a concise presentation script.
 
 ## Quick run notes
 
@@ -87,7 +90,7 @@ Expected local setup:
 ## Overall assessment
 
 The project is already strong enough for a guided demo. The biggest remaining work is not core functionality, but polish:
-- documentation
-- dependency cleanup
-- exact-location handling
-- verification/testing
+- visual verification
+- deeper testing
+- optional geolocation integration
+- final demo packaging

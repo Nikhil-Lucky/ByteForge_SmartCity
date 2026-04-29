@@ -31,6 +31,7 @@ The repository has also been initialized with Git and pushed to GitHub.
 - Hospital capacity recommendations are implemented
 - Traffic and route optimization recommendations are implemented
 - Civic complaint registration flow is implemented
+- Dedicated pothole complaint desk flow is implemented
 - Weather and flood-risk recommendations are implemented
 
 ### Maps and analytics
@@ -38,6 +39,7 @@ The repository has also been initialized with Git and pushed to GitHub.
 - Route queries can generate route-specific map decks
 - Dashboard analytics panels are restored and rendering again
 - Complaint, traffic, hospital, and waterlogging local data builders are in place
+- User-reported pothole complaints are fed back into local complaint tracking and map flows during the session
 
 ### Location handling
 - Area detection for known Bengaluru localities is implemented
@@ -45,6 +47,7 @@ The repository has also been initialized with Git and pushed to GitHub.
 - Custom place-label geocoding fallback is implemented
 - Dashboard now shows location-source status for the active query
 - Exact browser GPS is intentionally not wired into the demo flow; status messaging now reflects fallback behavior honestly
+- Pothole complaint routing uses detected app location rather than exact EXIF/browser GPS
 
 ### Repo hygiene
 - `.gitignore` added for `.env`, `venv/`, and cache files
@@ -62,11 +65,16 @@ The repository has also been initialized with Git and pushed to GitHub.
 - Replaced the empty README with real setup and usage documentation
 - Removed the misleading exact-location permission path from dashboard messaging
 - Added lightweight `unittest` coverage for pure dashboard helpers
+- Added a dedicated top-right pothole complaint entry point in the dashboard
+- Split pothole registration into a separate complaint screen instead of mixing it into the AI workflow
+- Added complaint receipt/confirmation behavior with complaint ID generation and BBMP team assignment
+- Added session-level pothole complaint tracking inside the complaint desk
+- Refined landing-page and dashboard button/card sizing for cleaner visual alignment
 
 ## Known gaps / risks
 
-- `progress.md` needs to be pushed after this latest refresh
 - Exact browser geolocation capture is still not integrated into the Streamlit flow
+- Photo EXIF location extraction is not implemented
 - Test coverage is still very light and currently focused on helper-level behavior
 - Some UI strings in terminal output show encoding/misrendering, so text rendering should be checked in the actual Streamlit app
 - Live API behavior depends on `.env` keys being present
@@ -76,7 +84,7 @@ The repository has also been initialized with Git and pushed to GitHub.
 1. Run the Streamlit app end-to-end and visually verify all dashboard flows.
 2. Install dependencies in a fresh environment and confirm `requirements.txt` is sufficient.
 3. Expand tests beyond helper functions into routing and payload generation.
-4. Decide whether to integrate browser geolocation for a future version or remove the unused prototype component.
+4. Decide whether to integrate browser geolocation and/or photo EXIF GPS extraction for a future version.
 5. Prepare demo-ready screenshots and a concise presentation script.
 
 ## Quick run notes
@@ -92,5 +100,5 @@ Expected local setup:
 The project is already strong enough for a guided demo. The biggest remaining work is not core functionality, but polish:
 - visual verification
 - deeper testing
-- optional geolocation integration
+- optional exact-location integration
 - final demo packaging

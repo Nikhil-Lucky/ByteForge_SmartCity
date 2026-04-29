@@ -10,6 +10,8 @@ SmartCity is a Streamlit-based hackathon prototype for civic decision support. I
 - Traffic and route-risk analysis
 - Rain and waterlogging awareness
 - Complaint workflow simulation
+- Dedicated pothole complaint desk with photo upload/camera capture
+- Session-based pothole complaint tracking with complaint IDs
 - PyDeck-based civic visualization
 - Local mock datasets with optional live API enrichment
 
@@ -62,12 +64,28 @@ streamlit run app.py
 - `Pothole near JP Nagar 7th Phase`
 - `Waterlogging near Silk Board`
 
+## Pothole complaint flow
+
+The dashboard includes a dedicated `Pothole Complaint` action in the top-right corner.
+
+From that screen, users can:
+
+- open a separate pothole complaint desk
+- take a photo using the camera or upload an image
+- auto-register a pothole complaint using detected app location
+- receive a generated complaint ID
+- see the assigned BBMP roads team
+- track pothole complaints created during the current session
+
+This is currently a demo workflow that simulates complaint registration and BBMP routing inside the app.
+
 ## Notes on location behavior
 
 - Known Bengaluru areas are matched directly from the query.
 - Custom locations can be geocoded when API support is available.
 - If no explicit location is found, the app falls back to approximate IP-based or city-level location.
 - Exact browser GPS capture is not currently wired into the Streamlit flow, so `near me` style queries use approximate fallback logic.
+- Pothole complaint auto-location currently uses the app's detected location, not photo EXIF GPS metadata.
 
 ## Current status
 

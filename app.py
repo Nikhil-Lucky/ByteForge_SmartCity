@@ -206,8 +206,9 @@ st.markdown(
     .kpi-card {
         position: relative;
         overflow: hidden;
-        min-height: 140px;
-        padding: 22px;
+        min-height: 118px;
+        height: 100%;
+        padding: 20px 22px;
         border-radius: 26px;
         background:
             linear-gradient(135deg, rgba(255,255,255,0.11), rgba(255,255,255,0.03)),
@@ -222,6 +223,9 @@ st.markdown(
         transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
         animation: fadeUp 0.65s ease both;
         margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .kpi-card:hover {
@@ -235,8 +239,8 @@ st.markdown(
 
     .kpi-icon {
         position: relative;
-        font-size: 29px;
-        margin-bottom: 14px;
+        font-size: 27px;
+        margin-bottom: 10px;
         filter: drop-shadow(0 10px 18px rgba(0,0,0,0.28));
     }
 
@@ -252,10 +256,10 @@ st.markdown(
     .kpi-value {
         position: relative;
         color: #ffffff;
-        font-size: 40px;
+        font-size: 38px;
         font-weight: 950;
         line-height: 1.05;
-        margin-top: 9px;
+        margin-top: 7px;
         text-shadow: 0 12px 34px rgba(0,0,0,0.35);
     }
 
@@ -264,7 +268,7 @@ st.markdown(
         color: #fda4af;
         font-size: 12px;
         font-weight: 850;
-        margin-top: 10px;
+        margin-top: 8px;
     }
 
     .status-row {
@@ -275,7 +279,9 @@ st.markdown(
     }
 
     .status-pill {
-        padding: 16px;
+        min-height: 108px;
+        height: 100%;
+        padding: 16px 16px 15px 16px;
         border-radius: 22px;
         background:
             linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.025)),
@@ -285,6 +291,8 @@ st.markdown(
         border: 1px solid rgba(255,255,255,0.13);
         color: #e2e8f0;
         box-shadow: 0 14px 36px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.14);
+        display: flex;
+        flex-direction: column;
     }
 
     .status-pill b {

@@ -48,6 +48,40 @@ def _run_query(query, run_smartcity_agent):
         st.session_state.last_deck = deck
 
 
+def _get_session_reports():
+    return st.session_state.setdefault("reported_complaints", [])
+
+
+def _is_pothole_desk_open():
+    return st.session_state.setdefault("show_pothole_desk", False)
+
+
+def _build_pothole_receipt_answer(receipt):
+    return f"""
+## Pothole Complaint Registered
+
+SmartCity registered a pothole complaint automatically using the submitted photo and detected location.
+
+| Detail | Information |
+|---|---|
+| Complaint ID | {receipt['id']} |
+| Category | Pothole |
+| Area | {receipt['area']} |
+| Location Source | {receipt['location_status']} |
+| Assigned Department | BBMP Roads Department |
+| Assigned Team | {receipt['team_name']} |
+| Evidence | {receipt['photo_source_label']} |
+| Status | Registered and routed |
+
+### What happens next?
+
+- The pothole photo is attached as complaint evidence.
+- The detected location is used to route the issue to the nearest BBMP roads response team.
+- The complaint is marked for field inspection and repair scheduling.
+- You can use **{receipt['id']}** as your tracking reference.
+"""
+
+
 def _nearest_area_name(lat, lon):
     candidates = {name: coords for name, coords in AREA_COORDS.items() if name != "Bengaluru"}
     return min(
@@ -314,6 +348,10 @@ def _phone_for(label, seed):
     return f"+91 80 {seed:04d} {abs(hash(label)) % 10000:04d}"
 
 
+def _bbmp_team_for_area(area):
+    return f"BBMP {area} Roads Response Team"
+
+
 def _distance_score(origin_lat, origin_lon, target_lat, target_lon):
     return abs(origin_lat - target_lat) + abs(origin_lon - target_lon)
 
@@ -513,12 +551,7 @@ def _build_context_map(snapshot, intent, query, create_smartcity_deck_map):
                 "radius": 300,
             })
 
-    complaints = [item for item in snapshot["complaints"] if item["area"] == area]
-    if show_complaints and not complaints:
-        complaints = [
-            {"id": "CMP-LOCAL-01", "category": "General Civic Issue", "area": area, "status": "Registered", "department": "City Civic Department", "priority": "Medium"},
-            {"id": "CMP-LOCAL-02", "category": "Drainage", "area": area, "status": "Assigned", "department": "Drainage Cell", "priority": "High"},
-        ]
+    complaints = _build_local_complaint_pool(snapshot, query)
 
     for complaint in complaints:
         complaint_area = complaint["area"]
@@ -827,6 +860,7 @@ def _build_complaint_payload(snapshot, query):
 def _build_local_complaint_pool(snapshot, query):
     area = _get_query_location(query)["area"]
     nearby = [item for item in snapshot["complaints"] if item["area"] == area]
+    nearby.extend(item for item in _get_session_reports() if item["area"] == area)
     if not nearby:
         nearby = [
             {
@@ -855,6 +889,270 @@ def _build_local_complaint_pool(snapshot, query):
             },
         ]
     return nearby
+
+
+def _build_pothole_report_deck(location, complaint_id, team_name, create_smartcity_deck_map):
+    nearby_reports = _get_session_reports()[-4:]
+    records = [
+        {
+            "name": complaint_id,
+            "category": "New Complaint: Pothole",
+            "lat": location["lat"],
+            "lon": location["lon"],
+            "details": f"Area: {location['area']} | Assigned: {team_name}",
+            "priority": "High",
+            "color": [249, 115, 22, 240],
+            "radius": 360,
+            "marker_text": "NEW",
+            "elevation": 1500,
+        }
+    ]
+
+    for item in nearby_reports:
+        if item["id"] == complaint_id:
+            continue
+        records.append({
+            "name": item["id"],
+            "category": f"Complaint: {item['category']}",
+            "lat": item["lat"],
+            "lon": item["lon"],
+            "details": f"Area: {item['area']} | Status: {item['status']} | Department: {item['department']}",
+            "priority": item["priority"],
+            "color": [245, 158, 11, 220],
+            "radius": 255,
+            "marker_text": "",
+            "elevation": 900,
+        })
+
+    return create_smartcity_deck_map(records, zoom=12.45, pitch=30)
+
+
+def _register_pothole_report(photo_source_label, create_smartcity_deck_map):
+    location = _fetch_current_location()
+    complaint_id = f"CMP-2026-{random.randint(1000, 9999)}"
+    team_name = _bbmp_team_for_area(location["area"])
+    location_status = _location_status_text("near me")
+    report = {
+        "id": complaint_id,
+        "category": "Pothole",
+        "area": location["area"],
+        "status": "Registered",
+        "department": team_name,
+        "priority": "High",
+        "lat": location["lat"],
+        "lon": location["lon"],
+        "source": photo_source_label,
+    }
+    _get_session_reports().append(report)
+    receipt_deck = _build_pothole_report_deck(
+        location,
+        complaint_id,
+        team_name,
+        create_smartcity_deck_map,
+    )
+    st.session_state.pothole_report_receipt = {
+        "id": complaint_id,
+        "area": location["area"],
+        "label": location["label"],
+        "team_name": team_name,
+        "photo_source_label": photo_source_label,
+        "location_status": location_status,
+        "deck": receipt_deck,
+    }
+    st.session_state.show_pothole_receipt = True
+    st.session_state.play_pothole_success_animation = True
+    st.session_state.show_pothole_desk = False
+
+
+def _open_pothole_desk():
+    st.session_state.show_pothole_desk = True
+
+
+def _close_pothole_desk():
+    st.session_state.show_pothole_desk = False
+
+
+def _open_pothole_receipt_on_dashboard():
+    receipt = st.session_state.get("pothole_report_receipt")
+    if not receipt:
+        return
+
+    st.session_state.show_pothole_receipt = False
+    st.session_state.last_query = f"Pothole reported near {receipt['label']}"
+    st.session_state.last_intent = "Civic Complaint Agent"
+    st.session_state.last_answer = _build_pothole_receipt_answer(receipt)
+    st.session_state.last_deck = receipt["deck"]
+
+
+def _dismiss_pothole_receipt():
+    st.session_state.show_pothole_receipt = False
+
+
+def _open_existing_complaint(report, create_smartcity_deck_map):
+    location = {
+        "label": report["area"],
+        "area": report["area"],
+        "lat": report["lat"],
+        "lon": report["lon"],
+    }
+    receipt = {
+        "id": report["id"],
+        "area": report["area"],
+        "label": report["area"],
+        "team_name": report["department"],
+        "photo_source_label": report.get("source", "Submitted evidence"),
+        "location_status": f"Stored complaint coordinates for {report['area']}.",
+        "deck": _build_pothole_report_deck(
+            location,
+            report["id"],
+            report["department"],
+            create_smartcity_deck_map,
+        ),
+    }
+    st.session_state.pothole_report_receipt = receipt
+    st.session_state.show_pothole_receipt = False
+    _open_pothole_receipt_on_dashboard()
+
+
+def _render_pothole_receipt():
+    receipt = st.session_state.get("pothole_report_receipt")
+    if not receipt or not st.session_state.get("show_pothole_receipt"):
+        return
+
+    if st.session_state.pop("play_pothole_success_animation", False):
+        st.balloons()
+        toast = getattr(st, "toast", None)
+        if callable(toast):
+            toast(f"Complaint {receipt['id']} registered successfully")
+
+    left, center, right = st.columns([0.14, 0.72, 0.14])
+    with center:
+        with st.container(border=True):
+            st.markdown("### Complaint Registered Successfully")
+            st.success(f"Complaint ID generated: {receipt['id']}")
+            st.caption("SmartCity stayed on the dashboard and saved your pothole complaint for BBMP action.")
+
+            summary_col1, summary_col2 = st.columns(2, gap="large")
+            with summary_col1:
+                st.markdown(f"**Complaint ID**  \n{receipt['id']}")
+                st.markdown("**Category**  \nPothole")
+                st.markdown(f"**Area**  \n{receipt['area']}")
+                st.markdown(f"**Evidence**  \n{receipt['photo_source_label']}")
+            with summary_col2:
+                st.markdown("**Assigned Department**  \nBBMP Roads Department")
+                st.markdown(f"**Assigned Team**  \n{receipt['team_name']}")
+                st.markdown("**Status**  \nRegistered and routed")
+                st.markdown(f"**Location Source**  \n{receipt['location_status']}")
+
+            action_col1, action_col2 = st.columns(2, gap="medium")
+            with action_col1:
+                if st.button("View Complaint on Dashboard", use_container_width=True):
+                    _open_pothole_receipt_on_dashboard()
+                    st.rerun()
+            with action_col2:
+                if st.button("Close Receipt", use_container_width=True):
+                    _dismiss_pothole_receipt()
+                    st.rerun()
+
+
+def _render_pothole_reporter(create_smartcity_deck_map):
+    with st.container(border=True):
+        st.markdown("### Report a pothole with photo evidence")
+        st.caption(
+            "Take a live photo or upload one. SmartCity will attach the detected location, route the case to the BBMP roads team, and issue a complaint ID."
+        )
+
+        camera_col, upload_col = st.columns(2, gap="large")
+        with camera_col:
+            captured_photo = st.camera_input("Take pothole photo")
+        with upload_col:
+            uploaded_photo = st.file_uploader(
+                "Upload pothole photo",
+                type=["jpg", "jpeg", "png"],
+                accept_multiple_files=False,
+            )
+
+        chosen_photo = captured_photo or uploaded_photo
+        if chosen_photo is not None:
+            st.image(chosen_photo, caption="Pothole evidence preview", use_container_width=True)
+
+        report_col, note_col = st.columns([0.38, 0.62])
+        with report_col:
+            if st.button("Register Pothole Complaint", type="primary", use_container_width=True):
+                if chosen_photo is None:
+                    st.warning("Add a pothole photo first using the camera or upload option.")
+                else:
+                    photo_source_label = "Live camera capture" if captured_photo is not None else "Uploaded photo"
+                    _register_pothole_report(photo_source_label, create_smartcity_deck_map)
+                    st.rerun()
+        with note_col:
+            location = _fetch_current_location()
+            st.caption(f"Auto-detected routing location: {location['label']} ({location['area']})")
+            st.caption(_location_status_text("near me"))
+
+
+def _render_pothole_complaint_list(create_smartcity_deck_map):
+    reports = list(reversed(_get_session_reports()))
+    with st.container(border=True):
+        st.markdown("### Your Registered Pothole Complaints")
+        if not reports:
+            st.caption("No pothole complaints registered in this session yet.")
+            return
+
+        for index, report in enumerate(reports, start=1):
+            with st.container(border=True):
+                head_col, track_col = st.columns([0.72, 0.28])
+                with head_col:
+                    st.markdown(f"**{report['id']}**")
+                    st.caption(
+                        f"{report['area']} | {report['department']} | {report['status']} | {report.get('source', 'Submitted evidence')}"
+                    )
+                with track_col:
+                    if st.button(
+                        "Track Complaint",
+                        key=f"track_pothole_{report['id']}_{index}",
+                        use_container_width=True,
+                    ):
+                        _open_existing_complaint(report, create_smartcity_deck_map)
+                        _close_pothole_desk()
+                        st.rerun()
+
+
+def _render_pothole_desk(create_smartcity_deck_map):
+    if not _is_pothole_desk_open():
+        return
+
+    st.markdown('<div class="section-heading">Pothole Complaint Desk</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        top_col1, top_col2 = st.columns([0.78, 0.22])
+        with top_col1:
+            st.markdown("### Register or track pothole complaints")
+            st.caption(
+                "Use this desk to upload a pothole photo, get a complaint ID, and review the pothole complaints you have already registered."
+            )
+        with top_col2:
+            if st.button("Close Desk", use_container_width=True):
+                _close_pothole_desk()
+                st.rerun()
+
+    _render_pothole_reporter(create_smartcity_deck_map)
+    _render_pothole_complaint_list(create_smartcity_deck_map)
+
+
+def _render_pothole_desk_screen(create_smartcity_deck_map):
+    st.markdown(
+        """
+        <div class="dashboard-mini-hero">
+            <div class="dashboard-title">Pothole Complaint Desk</div>
+            <div class="dashboard-subtitle">
+                Register a new pothole using camera or upload evidence, then track every pothole complaint you have filed in this session.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    _render_pothole_desk(create_smartcity_deck_map)
+    _render_pothole_receipt()
 
 
 def _build_weather_payload(snapshot, query):
@@ -1209,6 +1507,29 @@ def _inject_dashboard_css():
             filter: none !important;
         }
 
+        .stButton button[kind="primary"] {
+            border: 1px solid rgba(191, 219, 254, 0.65) !important;
+            background:
+                linear-gradient(135deg, rgba(191,219,254,0.38), rgba(125,211,252,0.22) 45%, rgba(244,114,182,0.18) 100%),
+                rgba(30,41,59,0.70) !important;
+            color: #f8fafc !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.28),
+                0 0 0 1px rgba(191,219,254,0.12),
+                0 18px 34px rgba(96,165,250,0.16) !important;
+        }
+
+        .stButton button[kind="primary"]:hover {
+            border-color: rgba(186, 230, 253, 0.82) !important;
+            background:
+                linear-gradient(135deg, rgba(219,234,254,0.46), rgba(147,197,253,0.28) 45%, rgba(251,207,232,0.22) 100%),
+                rgba(30,41,59,0.76) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.34),
+                0 0 0 1px rgba(191,219,254,0.16),
+                0 22px 38px rgba(96,165,250,0.20) !important;
+        }
+
         div[data-testid="stVerticalBlock"] div[data-testid="stContainer"] {
             border-radius: 24px;
         }
@@ -1298,7 +1619,7 @@ def render_dashboard_page(
     _inject_dashboard_css()
     snapshot = _load_city_snapshot(load_json, get_traffic_zones, get_waterlogging_zones)
 
-    back_col, _ = st.columns([0.20, 0.80])
+    back_col, top_action_col = st.columns([0.18, 0.82])
     with back_col:
         if st.button("← Back", use_container_width=True):
             st.session_state.entered_dashboard = False
@@ -1307,6 +1628,21 @@ def render_dashboard_page(
             st.session_state.last_answer = None
             st.session_state.last_deck = None
             st.rerun()
+    with top_action_col:
+        right_pad, desk_button_col = st.columns([0.70, 0.30])
+        with desk_button_col:
+            pothole_button_label = "Close Pothole Desk" if _is_pothole_desk_open() else "Pothole Complaint"
+            if st.button(pothole_button_label, type="primary", use_container_width=True):
+                if _is_pothole_desk_open():
+                    _close_pothole_desk()
+                else:
+                    _open_pothole_desk()
+                st.rerun()
+
+    _capture_exact_location()
+    if _is_pothole_desk_open():
+        _render_pothole_desk_screen(create_smartcity_deck_map)
+        return
 
     st.markdown(
         """
@@ -1344,28 +1680,33 @@ def render_dashboard_page(
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    _capture_exact_location()
+    _render_pothole_receipt()
 
     if ask_button:
         _run_query(query, run_smartcity_agent)
 
-    if st.session_state.last_answer is None:
+    receipt_visible = st.session_state.get("show_pothole_receipt", False)
+
+    if st.session_state.last_answer is None and not receipt_visible:
         st.markdown('<div class="example-label">Try an example</div>', unsafe_allow_html=True)
 
         quick_queries = [
-            "Ambulance near Indiranagar",
-            "Hospital with ICU beds near Koramangala",
-            "Best route from Electronic City to Majestic during rain",
-            "Pothole near JP Nagar 7th Phase",
-            "Waterlogging near Silk Board",
+            ("Ambulance\nIndiranagar", "Ambulance near Indiranagar"),
+            ("Hospital ICU\nKoramangala", "Hospital with ICU beds near Koramangala"),
+            ("Route in Rain\nECity to Majestic", "Best route from Electronic City to Majestic during rain"),
+            ("Pothole Report\nJP Nagar 7th Phase", "Pothole near JP Nagar 7th Phase"),
+            ("Waterlogging\nSilk Board", "Waterlogging near Silk Board"),
         ]
 
         quick_cols = st.columns(5, gap="medium")
-        for col, quick_query in zip(quick_cols, quick_queries):
+        for col, (button_label, quick_query) in zip(quick_cols, quick_queries):
             with col:
-                if st.button(quick_query, use_container_width=True):
+                if st.button(button_label, use_container_width=True):
                     _run_query(quick_query, run_smartcity_agent)
                     st.rerun()
+
+    if st.session_state.last_answer is None and receipt_visible:
+        return
 
     if st.session_state.last_answer is None:
         st.markdown(
